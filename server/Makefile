@@ -1,4 +1,4 @@
-files = main.go
+files = *.go
 out = ./bin/kittenchat
 
 run:
