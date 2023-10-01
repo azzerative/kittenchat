@@ -1,7 +1,7 @@
 import { useProfile } from "@/lib/hooks";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loading } from "./ui/loading";
+import { LoadingPage } from "./ui/LoadingPage";
 
 type ProtectedProps = {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export function Protected({ children }: ProtectedProps) {
     return null;
   }
   if (profileQuery.isLoading) {
-    return <Loading />;
+    return <LoadingPage />;
   }
   return children;
 }

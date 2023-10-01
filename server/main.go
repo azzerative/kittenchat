@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/sessions"
+	"github.com/gorilla/websocket"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo-contrib/session"
@@ -34,6 +35,7 @@ func main() {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
+	e.Use(middleware.Recover())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: "${time_rfc3339} ${method} ${uri} ${status} ${error}\n",
 	}))
@@ -54,13 +56,24 @@ func main() {
 
 	handler := &handler{
 		db: db,
+		wsUpgrader: websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
+			return r.Header.Get("Origin") == os.Getenv("CLIENT_ORIGIN")
+		}},
+		chatConns: make(map[int]*websocket.Conn),
 	}
 
+	ws := e.Group("/ws")
+	ws.GET("/chat", handler.chat, protectedRoute)
+
 	api := e.Group("/api")
+	// auth
 	api.POST("/register", handler.register)
 	api.POST("/login", handler.login)
 	api.GET("/profile", handler.getProfile, protectedRoute)
 	api.POST("/logout", handler.logout)
+	// chat
+	api.GET("/messages", handler.getMessages, protectedRoute)
+	api.GET("/user-infos", handler.getUserInfos, protectedRoute)
 
 	e.Logger.Fatal(e.Start(os.Getenv("ADDRESS")))
 }
