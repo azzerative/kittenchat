@@ -52,7 +52,7 @@ export function ChatBox({ activeUserID }: ChatBoxProps) {
             ) : (
               messagesQuery.data.map((m) => (
                 <MessageCard
-                  key={`${m.senderID}-${m.receiverID}-${m.createdAt}`}
+                  key={m.createdAt.toISOString()}
                   self={m.senderID === profileQuery.data?.id}
                   {...{ content: m.content, createdAt: m.createdAt }}
                 />
