@@ -16,7 +16,7 @@ export function UserInfos({ activeUserID, setActiveUserID }: UserInfosProps) {
 
   const userInfosQuery = useUserInfos();
 
-  function handleCardKeyDown(key: string, index: number) {
+  function handleCardKeyDown(key: string, index: number, userID: number) {
     let node: HTMLLIElement | undefined;
 
     switch (key) {
@@ -36,6 +36,10 @@ export function UserInfos({ activeUserID, setActiveUserID }: UserInfosProps) {
         node = cardsMapRef.current.at(index + 1);
         break;
       }
+      case "Enter":
+      case " ":
+        setActiveUserID(userID);
+        return;
       default:
         return;
     }
@@ -65,7 +69,7 @@ export function UserInfos({ activeUserID, setActiveUserID }: UserInfosProps) {
                 cardsMapRef.current.push(node);
               }
             }}
-            onKeyDown={(e) => handleCardKeyDown(e.key, i)}
+            onKeyDown={(e) => handleCardKeyDown(e.key, i, u.id)}
             onClick={() => handleCardClick(u.id)}
             className={cn(u.id === activeUserID && "bg-slate-200")}
             {...{
