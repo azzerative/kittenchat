@@ -82,7 +82,7 @@ export function useChat() {
   const profileQuery = useProfile();
   const queryClient = useQueryClient();
 
-  function sendMessage(content: string, userID: number) {
+  async function sendMessage(content: string, userID: number) {
     if (!profileQuery.isSuccess) return;
 
     const msg = {
@@ -93,8 +93,8 @@ export function useChat() {
       read_at: null,
     } satisfies z.input<typeof messageSchema>;
     connRef.current?.send(JSON.stringify(msg));
-    queryClient.invalidateQueries(["messages", userID]);
-    queryClient.invalidateQueries(["user-infos"]);
+    await queryClient.invalidateQueries(["messages", userID]);
+    await queryClient.invalidateQueries(["user-infos"]);
   }
 
   useEffect(() => {
@@ -104,10 +104,10 @@ export function useChat() {
       console.log("connected to chat websocket server");
     };
 
-    connRef.current.onmessage = (event) => {
+    connRef.current.onmessage = async (event) => {
       const msg = messageSchema.parse(JSON.parse(event.data));
-      queryClient.invalidateQueries(["messages", msg.senderID]);
-      queryClient.invalidateQueries(["user-infos"]);
+      await queryClient.invalidateQueries(["messages", msg.senderID]);
+      await queryClient.invalidateQueries(["user-infos"]);
     };
 
     return () => {

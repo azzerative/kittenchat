@@ -1,6 +1,7 @@
 import { useChat, useMessages, useProfile } from "@/lib/hooks";
 import type { MessageContentFormFieldValues, userSchema } from "@/lib/types";
 import { Send } from "lucide-react";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { MessageCard } from "./MessageCard";
@@ -15,6 +16,7 @@ type ChatBoxProps = {
 
 export function ChatBox({ activeUserID }: ChatBoxProps) {
   const profileQuery = useProfile();
+  const messageListRef = useRef<HTMLUListElement | null>(null);
 
   const messagesQuery = useMessages({ userID: activeUserID });
   const form = useForm<MessageContentFormFieldValues>({
@@ -22,18 +24,23 @@ export function ChatBox({ activeUserID }: ChatBoxProps) {
   });
   const [sendMessage] = useChat();
 
-  function onSubmit(values: MessageContentFormFieldValues) {
+  async function onSubmit(values: MessageContentFormFieldValues) {
     if (!activeUserID) return;
-
-    sendMessage(values.content, activeUserID);
+    await sendMessage(values.content, activeUserID);
     form.reset();
+
+    if (!messageListRef.current) return;
+    messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
   }
 
   return (
     <section className="flex flex-col overflow-hidden border-l">
       {!!activeUserID && (
         <>
-          <ul className="relative flex grow flex-col gap-4 overflow-auto p-2.5">
+          <ul
+            ref={messageListRef}
+            className="relative flex grow flex-col gap-4 overflow-auto p-2.5"
+          >
             {messagesQuery.isError ? (
               <ErrorPage error={messagesQuery.error} />
             ) : messagesQuery.isLoading ? (
