@@ -32,7 +32,9 @@ WHERE
 	sender_id = $1 AND receiver_id = $2
 	OR sender_id = $2 AND receiver_id = $1
 `
+	h.lock.Lock()
 	rows, _ := h.db.Query(c.Request().Context(), sql, selfID, otherID)
+	h.lock.Unlock()
 	for rows.Next() {
 		var m Message
 		if err := rows.Scan(&m.SenderID, &m.ReceiverID, &m.Content, &m.CreatedAt, &m.ReadAt); err != nil {
@@ -87,7 +89,9 @@ LEFT JOIN ranked_messages rm ON
 WHERE
 	u.id != $1
 `
+	h.lock.Lock()
 	rows, _ := h.db.Query(c.Request().Context(), sql, selfID)
+	h.lock.Unlock()
 	for rows.Next() {
 		var u UserInfo
 		if err := rows.Scan(&u.ID, &u.Username, &u.Content, &u.CreatedAt); err != nil {

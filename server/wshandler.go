@@ -36,10 +36,12 @@ func (h *handler) chat(c echo.Context) error {
 			continue
 		}
 
+		h.lock.Lock()
 		if _, err := h.db.Exec(c.Request().Context(), "INSERT INTO messages (sender_id, receiver_id, content, created_at) VALUES ($1, $2, $3, $4)", msg.SenderID, msg.ReceiverID, msg.Content, msg.CreatedAt); err != nil {
 			c.Logger().Error(err)
 			continue
 		}
+		h.lock.Unlock()
 		receiverConn, ok := h.chatConns[msg.ReceiverID]
 		if !ok {
 			continue
