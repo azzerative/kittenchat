@@ -95,7 +95,10 @@ const UserInfoCard = forwardRef<HTMLLIElement, UserInfoCardProps>(
     return (
       <li
         ref={ref}
-        className={cn("cursor-pointer p-2.5 hover:bg-accent", className)}
+        className={cn(
+          "cursor-pointer p-2.5 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+          className,
+        )}
         {...props}
       >
         <div>
