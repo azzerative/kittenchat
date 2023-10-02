@@ -66,6 +66,7 @@ export function ChatBox({ activeUserID }: ChatBoxProps) {
             <Input
               type="text"
               placeholder="Type a message"
+              autoComplete="off"
               className="grow rounded-none border-0 focus-visible:ring-0"
               required
               {...form.register("content")}
