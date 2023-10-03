@@ -76,6 +76,7 @@ export function UserInfos({ activeUserID, setActiveUserID }: UserInfosProps) {
               username: u.username,
               content: u.content,
               createdAt: u.createdAt,
+              unreadCount: u.unreadCount,
             }}
           />
         ))}
@@ -88,10 +89,13 @@ type UserInfoCardProps = Omit<
   React.ComponentPropsWithoutRef<"li">,
   "id" | "content"
 > &
-  Pick<z.infer<typeof userInfoSchema>, "username" | "content" | "createdAt">;
+  Pick<
+    z.infer<typeof userInfoSchema>,
+    "username" | "content" | "createdAt" | "unreadCount"
+  >;
 
 const UserInfoCard = forwardRef<HTMLLIElement, UserInfoCardProps>(
-  ({ username, content, createdAt, className, ...props }, ref) => {
+  ({ username, content, createdAt, unreadCount, className, ...props }, ref) => {
     return (
       <li
         ref={ref}
@@ -101,8 +105,13 @@ const UserInfoCard = forwardRef<HTMLLIElement, UserInfoCardProps>(
         )}
         {...props}
       >
-        <div>
+        <div className="flex items-center justify-between gap-4">
           <div className="font-semibold">{username}</div>
+          {!!unreadCount && (
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-xs font-semibold leading-none text-destructive-foreground">
+              {unreadCount}
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-between gap-4">
           <p title={content ?? undefined} className="truncate">

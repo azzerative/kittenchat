@@ -50,10 +50,19 @@ export const userInfoSchema = z
     username: z.string().min(1),
     content: z.string().nullable(),
     created_at: z.coerce.date().nullable(),
+    unread_count: z.number().int().positive().nullable(),
   })
   .transform((u) => ({
     id: u.id,
     username: u.username,
     content: u.content,
     createdAt: u.created_at,
+    unreadCount: u.unread_count,
   }));
+
+export const chatPayloadType = z.enum(["NEW_MESSAGE", "OPEN_CHATBOX"]);
+
+export const chatPayloadSchema = z.object({
+  type: chatPayloadType,
+  data: z.unknown(),
+});

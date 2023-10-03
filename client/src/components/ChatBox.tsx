@@ -1,7 +1,7 @@
 import { useChat, useMessages, useProfile } from "@/lib/hooks";
 import type { MessageContentFormFieldValues, userSchema } from "@/lib/types";
 import { Send } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { MessageCard } from "./MessageCard";
@@ -22,7 +22,13 @@ export function ChatBox({ activeUserID }: ChatBoxProps) {
   const form = useForm<MessageContentFormFieldValues>({
     defaultValues: { content: "" },
   });
-  const [sendMessage] = useChat();
+  const [sendMessage, openChatbox] = useChat();
+
+  useEffect(() => {
+    if (messagesQuery.isSuccess && !!activeUserID) {
+      openChatbox(activeUserID);
+    }
+  }, [messagesQuery.isSuccess, activeUserID, openChatbox]);
 
   async function onSubmit(values: MessageContentFormFieldValues) {
     if (!activeUserID) return;

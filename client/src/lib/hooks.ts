@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import type { z } from "zod";
 import {
+  chatPayloadSchema,
+  chatPayloadType,
   messageSchema,
   userInfoSchema,
   userSchema,
@@ -92,9 +94,21 @@ export function useChat() {
       created_at: new Date(),
       read_at: null,
     } satisfies z.input<typeof messageSchema>;
-    connRef.current?.send(JSON.stringify(msg));
+    connRef.current?.send(
+      JSON.stringify({ type: chatPayloadType.Enum.NEW_MESSAGE, data: msg }),
+    );
     await queryClient.invalidateQueries(["messages", userID]);
     await queryClient.invalidateQueries(["user-infos"]);
+  }
+
+  function openChatbox(userID: number) {
+    connRef.current?.send(
+      JSON.stringify({
+        type: chatPayloadType.Enum.OPEN_CHATBOX,
+        data: userID,
+      }),
+    );
+    queryClient.invalidateQueries(["user-infos"]);
   }
 
   useEffect(() => {
@@ -105,7 +119,12 @@ export function useChat() {
     };
 
     connRef.current.onmessage = async (event) => {
-      const msg = messageSchema.parse(JSON.parse(event.data));
+      const payload = chatPayloadSchema.parse(JSON.parse(event.data));
+      if (payload.type !== chatPayloadType.Enum.NEW_MESSAGE) {
+        return;
+      }
+
+      const msg = messageSchema.parse(payload.data);
       await queryClient.invalidateQueries(["messages", msg.senderID]);
       await queryClient.invalidateQueries(["user-infos"]);
     };
@@ -116,5 +135,5 @@ export function useChat() {
     };
   }, [queryClient]);
 
-  return [sendMessage] as const;
+  return [sendMessage, openChatbox] as const;
 }

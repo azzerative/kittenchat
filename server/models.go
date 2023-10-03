@@ -18,9 +18,21 @@ type (
 	}
 
 	UserInfo struct {
-		ID        int        `json:"id"`
-		Username  string     `json:"username"`
-		Content   *string    `json:"content"`
-		CreatedAt *time.Time `json:"created_at"`
+		ID          int        `json:"id"`
+		Username    string     `json:"username"`
+		Content     *string    `json:"content"`
+		CreatedAt   *time.Time `json:"created_at"`
+		UnreadCount *int       `json:"unread_count"`
 	}
+
+	PayloadType      string
+	WebsocketPayload struct {
+		Type PayloadType `json:"type"`
+		Data interface{} `json:"data"`
+	}
+)
+
+const (
+	NewMessage  PayloadType = "NEW_MESSAGE"
+	OpenChatbox PayloadType = "OPEN_CHATBOX"
 )
